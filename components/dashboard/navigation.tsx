@@ -1,10 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { BarChart3, Plus, Home, User, LogOut, Settings, Bell } from "lucide-react"
+import { createClientComponentClient } from "@/lib/supabase"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
@@ -17,6 +18,14 @@ const navigation = [
 
 export function Navigation() {
   const pathname = usePathname()
+  const router = useRouter()
+  const supabase = createClientComponentClient()
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    router.push("/login")
+    router.refresh()
+  }
 
   return (
     <nav className="flex flex-col space-y-2">
@@ -46,6 +55,7 @@ export function Navigation() {
         <Button 
           variant="ghost" 
           className="w-full justify-start h-12 text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-200"
+          onClick={handleSignOut}
         >
           <LogOut className="mr-3 h-5 w-5" />
           Sign Out

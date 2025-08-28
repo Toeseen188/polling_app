@@ -4,11 +4,36 @@ import { RegisterForm } from "@/components/auth/register-form"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ArrowLeft, Sparkles } from "lucide-react"
+import { useState } from "react"
+import { createClientComponentClient } from "@/lib/supabase"
+import { useRouter } from "next/navigation"
 
 export default function RegisterPage() {
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const supabase = createClientComponentClient()
+  const router = useRouter()
+
   const handleRegister = async (data: any) => {
-    // TODO: Implement registration logic
-    console.log("Registration attempt:", data)
+    setIsLoading(true)
+    setError(null)
+    const { email, password, name } = data
+
+    const { error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name },
+      },
+    })
+
+    if (signUpError) {
+      setError(signUpError.message)
+    } else {
+      router.push("/dashboard")
+      router.refresh()
+    }
+    setIsLoading(false)
   }
 
   return (
@@ -29,7 +54,8 @@ export default function RegisterPage() {
         </div>
         
         {/* Register Form */}
-        <RegisterForm onSubmit={handleRegister} />
+        <RegisterForm onSubmit={handleRegister} isLoading={isLoading} />
+        {error && <p className="text-red-500 text-center mt-4">{error}</p>}
         
         {/* Footer Links */}
         <div className="text-center space-y-4">

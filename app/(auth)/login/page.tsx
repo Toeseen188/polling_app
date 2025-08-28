@@ -4,11 +4,33 @@ import { LoginForm } from "@/components/auth/login-form"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ArrowLeft, Sparkles } from "lucide-react"
+import { useState } from "react"
+import { createClientComponentClient } from "@/lib/supabase"
+import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const supabase = createClientComponentClient()
+  const router = useRouter()
+
   const handleLogin = async (data: any) => {
-    // TODO: Implement login logic
-    console.log("Login attempt:", data)
+    setIsLoading(true)
+    setError(null)
+    const { email, password } = data
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (signInError) {
+      setError(signInError.message)
+    } else {
+      router.push("/dashboard")
+      router.refresh()
+    }
+    setIsLoading(false)
   }
 
   return (
@@ -29,7 +51,8 @@ export default function LoginPage() {
         </div>
         
         {/* Login Form */}
-        <LoginForm onSubmit={handleLogin} />
+        <LoginForm onSubmit={handleLogin} isLoading={isLoading} />
+        {error && <p className="text-red-500 text-center mt-4">{error}</p>}
         
         {/* Footer Links */}
         <div className="text-center space-y-4">
