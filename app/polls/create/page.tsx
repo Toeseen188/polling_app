@@ -1,11 +1,34 @@
 "use client"
 
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { CreatePollForm } from "@/components/polls/create-poll-form"
+import { createPoll } from "@/lib/actions/polls"
+import { CreatePollRequest } from "@/types"
+import { toast } from "sonner"
 
 export default function CreatePollPage() {
-  const handleCreatePoll = async (data: any) => {
-    // TODO: Implement poll creation logic
-    console.log("Creating poll:", data)
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleCreatePoll = async (data: CreatePollRequest) => {
+    setIsLoading(true)
+    
+    try {
+      const result = await createPoll(data)
+      
+      if (result.success) {
+        toast.success("Poll created successfully!")
+        router.push(`/polls/${result.pollId}`)
+      } else {
+        toast.error(result.error || "Failed to create poll")
+      }
+    } catch (error) {
+      console.error("Error creating poll:", error)
+      toast.error("An unexpected error occurred")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -18,7 +41,7 @@ export default function CreatePollPage() {
           </p>
         </div>
         
-        <CreatePollForm onSubmit={handleCreatePoll} />
+        <CreatePollForm onSubmit={handleCreatePoll} isLoading={isLoading} />
       </div>
     </div>
   )

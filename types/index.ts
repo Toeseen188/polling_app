@@ -1,4 +1,19 @@
-export interface User {
+// Re-export database types for backward compatibility
+export type {
+  User,
+  Poll,
+  PollOption,
+  Vote,
+  PollResult,
+  ActivePoll,
+  PollWithOptions,
+  PollWithResults,
+  UserWithPolls,
+  VoteWithDetails
+} from './database'
+
+// Legacy interfaces for backward compatibility (deprecated)
+export interface LegacyUser {
   id: string
   email: string
   name: string
@@ -6,11 +21,11 @@ export interface User {
   updatedAt: Date
 }
 
-export interface Poll {
+export interface LegacyPoll {
   id: string
   title: string
   description?: string
-  options: PollOption[]
+  options: LegacyPollOption[]
   createdBy: string
   isActive: boolean
   allowMultipleVotes: boolean
@@ -19,13 +34,13 @@ export interface Poll {
   updatedAt: Date
 }
 
-export interface PollOption {
+export interface LegacyPollOption {
   id: string
   text: string
   votes: number
 }
 
-export interface Vote {
+export interface LegacyVote {
   id: string
   pollId: string
   userId: string
@@ -42,7 +57,7 @@ export interface CreatePollRequest {
 }
 
 export interface AuthResponse {
-  user: User
+  user: any // Using any for now since this is legacy
   token: string
 }
 

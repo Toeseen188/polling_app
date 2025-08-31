@@ -2,15 +2,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { BarChart3, Plus, Users, TrendingUp, Activity, Calendar, Target, Zap } from "lucide-react"
 import Link from "next/link"
+import { getUserPolls } from "@/lib/actions/polls"
 
-export default function DashboardPage() {
-  // TODO: Fetch real data from API
-  const mockStats = {
-    totalPolls: 12,
-    activePolls: 8,
-    totalVotes: 156,
-    thisMonth: 23
-  }
+export default async function DashboardPage() {
+  const { stats, polls, error } = await getUserPolls()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -20,6 +15,13 @@ export default function DashboardPage() {
           <h1 className="text-4xl font-bold text-gray-900 mb-3">Dashboard</h1>
           <p className="text-xl text-gray-600">Welcome back! Here's what's happening with your polls.</p>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-600">Error: {error}</p>
+          </div>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -31,7 +33,7 @@ export default function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-600 mb-1">{mockStats.totalPolls}</div>
+              <div className="text-3xl font-bold text-blue-600 mb-1">{stats.totalPolls}</div>
               <p className="text-xs text-gray-500 flex items-center">
                 <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
                 +2 from last month
@@ -47,7 +49,7 @@ export default function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-600 mb-1">{mockStats.activePolls}</div>
+              <div className="text-3xl font-bold text-green-600 mb-1">{stats.activePolls}</div>
               <p className="text-xs text-gray-500">Currently running</p>
             </CardContent>
           </Card>
@@ -60,7 +62,7 @@ export default function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-purple-600 mb-1">{mockStats.totalVotes}</div>
+              <div className="text-3xl font-bold text-purple-600 mb-1">{stats.totalVotes}</div>
               <p className="text-xs text-gray-500">Across all polls</p>
             </CardContent>
           </Card>
@@ -73,7 +75,7 @@ export default function DashboardPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-orange-600 mb-1">{mockStats.thisMonth}</div>
+              <div className="text-3xl font-bold text-orange-600 mb-1">{stats.thisMonth}</div>
               <p className="text-xs text-gray-500">New votes received</p>
             </CardContent>
           </Card>

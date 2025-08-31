@@ -1,18 +1,18 @@
 "use client"
 
-import { Poll } from "@/types"
+import { ActivePoll } from "@/types"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
 interface PollCardProps {
-  poll: Poll
+  poll: ActivePoll
   onVote?: (optionId: string) => void
 }
 
 export function PollCard({ poll, onVote }: PollCardProps) {
-  const totalVotes = poll.options.reduce((sum, option) => sum + option.votes, 0)
-  const isExpired = poll.expiresAt && new Date() > poll.expiresAt
+  const totalVotes = poll.total_votes
+  const isExpired = poll.expires_at && new Date() > new Date(poll.expires_at)
 
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -24,12 +24,12 @@ export function PollCard({ poll, onVote }: PollCardProps) {
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <span>{totalVotes} votes</span>
           <span>•</span>
-          <span>{poll.options.length} options</span>
-          {poll.expiresAt && (
+          <span>{poll.option_count} options</span>
+          {poll.expires_at && (
             <>
               <span>•</span>
               <span>
-                {isExpired ? "Expired" : `Expires ${poll.expiresAt.toLocaleDateString()}`}
+                {isExpired ? "Expired" : `Expires ${new Date(poll.expires_at).toLocaleDateString()}`}
               </span>
             </>
           )}
@@ -37,25 +37,13 @@ export function PollCard({ poll, onVote }: PollCardProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          {poll.options.map((option) => {
-            const percentage = totalVotes > 0 ? (option.votes / totalVotes) * 100 : 0
-            return (
-              <div key={option.id} className="space-y-1">
-                <div className="flex items-center justify-between text-sm">
-                  <span>{option.text}</span>
-                  <span className="text-muted-foreground">
-                    {option.votes} votes ({percentage.toFixed(1)}%)
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
-              </div>
-            )
-          })}
+          <div className="text-sm text-muted-foreground">
+            <p>Created by: {poll.creator_name}</p>
+            <p>Created: {new Date(poll.created_at).toLocaleDateString()}</p>
+            {poll.allow_multiple_votes && (
+              <p className="text-blue-600">Multiple votes allowed</p>
+            )}
+          </div>
         </div>
         <div className="flex gap-2 mt-4">
           <Button
